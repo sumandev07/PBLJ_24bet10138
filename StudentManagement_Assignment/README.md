@@ -70,7 +70,7 @@ With Postman CLI installed, run the same checks from Terminal:
 postman collection run postman/Student-Management.postman_collection.json
 ```
 
-The recorded Postman CLI run against MySQL 8.0.32 passed 12 requests and 23 assertions. See the [interactive Postman report](docs/postman-report.html), the [CLI output](docs/postman-test-output.txt), and the [screenshots showing all requests](docs/screenshots/01-all-requests.jpg). The report was captured on a separate test port.
+The recorded Postman CLI run against MySQL 8.0.32 passed 12 requests and 23 assertions. See the [Postman results](docs/POSTMAN-RESULTS.md), the [CLI output](docs/postman-test-output.txt), and the [screenshots showing all requests](docs/screenshots/01-all-requests.jpg). The report was captured on a separate test port.
 
 ## Source guide
 
