@@ -1,0 +1,2 @@
+# Exclude the generated Postman report from GitHub language statistics.
+/StudentManagement_Assignment/docs/postman-report.html linguist-generated=true
