@@ -1,0 +1,5 @@
+Campus Library restart checks
+PASS First JVM saves the new book, two loans, and one return
+PASS Second JVM loads the saved catalog and loan history
+PASS Available copies persist after restart
+PASS Returned and active loan states persist after restart

@@ -1,0 +1,435 @@
+{
+  "info": {
+    "name": "Student Management REST API",
+    "description": "Run in order. Each run creates a fictional student with a unique email and deletes that record after verifying the routes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "studentId",
+      "value": ""
+    },
+    {
+      "key": "studentEmail",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Add student",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Asha Rao\",\n  \"email\": \"{{studentEmail}}\",\n  \"course\": \"Computer Science\",\n  \"age\": 20\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.unset(\"studentId\");",
+              "pm.collectionVariables.set(\"studentEmail\", \"asha.\" + pm.variables.replaceIn(\"{{$guid}}\") + \"@example.com\");"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => { pm.response.to.have.status(201); });",
+              "const student = pm.response.json();",
+              "pm.test(\"Saved student has an ID and expected fields\", () => { pm.expect(student).to.include({name: \"Asha Rao\", course: \"Computer Science\", age: 20}); pm.expect(student.id).to.be.a(\"number\"); pm.expect(student.email).to.eql(pm.collectionVariables.get(\"studentEmail\")); });",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"studentId\", student.id);",
+              "pm.test(\"Location points to the new record\", () => { pm.expect(pm.response.headers.get(\"Location\")).to.eql(\"/api/students/\" + student.id); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 List students",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => { pm.response.to.have.status(200); });",
+              "pm.test(\"List contains the new record\", () => { pm.expect(pm.response.json().some(s => s.id === Number(pm.collectionVariables.get(\"studentId\")))).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Get student by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students/{{studentId}}"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get(\"studentId\")) { pm.execution.skipRequest(); }"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => { pm.response.to.have.status(200); });",
+              "pm.test(\"Record has the requested ID\", () => { pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get(\"studentId\"))); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Update student",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students/{{studentId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Asha Rao\",\n  \"email\": \"{{studentEmail}}\",\n  \"course\": \"Data Science\",\n  \"age\": 21\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get(\"studentId\")) { pm.execution.skipRequest(); }"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => { pm.response.to.have.status(200); });",
+              "pm.test(\"Course and age were updated\", () => { pm.expect(pm.response.json()).to.include({id: Number(pm.collectionVariables.get(\"studentId\")), course: \"Data Science\", age: 21}); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Find students by course",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students/course/data%20science"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => { pm.response.to.have.status(200); });",
+              "pm.test(\"Case-insensitive course match finds the updated student\", () => { pm.expect(pm.response.json().some(s => s.id === Number(pm.collectionVariables.get(\"studentId\")) && s.course === \"Data Science\")).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Reject duplicate email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Asha Rao\",\n  \"email\": \"{{studentEmail}}\",\n  \"course\": \"Computer Science\",\n  \"age\": 20\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => { pm.response.to.have.status(409); });",
+              "pm.test(\"Conflict explains the duplicate\", () => { pm.expect(pm.response.json().detail).to.include(\"email\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Reject invalid fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"email\": \"invalid\",\n  \"course\": \"\",\n  \"age\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => { pm.response.to.have.status(400); });",
+              "pm.test(\"Response includes field errors\", () => { pm.expect(pm.response.json().errors).to.have.keys(\"name\", \"email\", \"course\", \"age\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Reject fractional age",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Asha Rao\",\n  \"email\": \"{{studentEmail}}\",\n  \"course\": \"Computer Science\",\n  \"age\": 20.5\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Reject invalid ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students/abc"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Delete student",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students/{{studentId}}"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get(\"studentId\")) { pm.execution.skipRequest(); }"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => { pm.response.to.have.status(204); });",
+              "pm.test(\"Delete response has no body\", () => { pm.expect(pm.response.text()).to.eql(\"\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Confirm student is gone",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students/{{studentId}}"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get(\"studentId\")) { pm.execution.skipRequest(); }"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => { pm.response.to.have.status(404); });",
+              "pm.test(\"Error identifies the deleted student\", () => { pm.expect(pm.response.json().detail).to.include(pm.collectionVariables.get(\"studentId\").toString()); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Empty course result",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/students/course/course-with-no-students"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => { pm.response.to.have.status(200); });",
+              "pm.test(\"A course without students returns an empty list\", () => { pm.expect(pm.response.json()).to.eql([]); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

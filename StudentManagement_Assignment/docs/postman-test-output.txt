@@ -1,0 +1,75 @@
+Running your collection...
+postman
+
+Student Management REST API
+
+Root 01 Add student
+
+  POST http://127.0.0.1:18081/api/students [201 Created, 323 B, 255 ms]
+  Pass  HTTP 201
+  Pass  Saved student has an ID and expected fields
+  Pass  Location points to the new record
+
+Root 02 List students
+
+  GET http://127.0.0.1:18081/api/students [200 OK, 286 B, 16 ms]
+  Pass  HTTP 200
+  Pass  List contains the new record
+
+Root 03 Get student by ID
+
+  GET http://127.0.0.1:18081/api/students/1 [200 OK, 284 B, 22 ms]
+  Pass  HTTP 200
+  Pass  Record has the requested ID
+
+Root 04 Update student
+
+  PUT http://127.0.0.1:18081/api/students/1 [200 OK, 280 B, 21 ms]
+  Pass  HTTP 200
+  Pass  Course and age were updated
+
+Root 05 Find students by course
+
+  GET http://127.0.0.1:18081/api/students/course/data%20science [200 OK, 282 B, 237 ms]
+  Pass  HTTP 200
+  Pass  Case-insensitive course match finds the updated student
+
+Root 06 Reject duplicate email
+
+  POST http://127.0.0.1:18081/api/students [409 Conflict, 291 B, 328 ms]
+  Pass  HTTP 409
+  Pass  Conflict explains the duplicate
+
+Root 07 Reject invalid fields
+
+  POST http://127.0.0.1:18081/api/students [400 Bad Request, 408 B, 24 ms]
+  Pass  HTTP 400
+  Pass  Response includes field errors
+
+Root 08 Reject fractional age
+
+  POST http://127.0.0.1:18081/api/students [400 Bad Request, 281 B, 7 ms]
+  Pass  HTTP 400
+
+Root 09 Reject invalid ID
+
+  GET http://127.0.0.1:18081/api/students/abc [400 Bad Request, 269 B, 4 ms]
+  Pass  HTTP 400
+
+Root 10 Delete student
+
+  DELETE http://127.0.0.1:18081/api/students/1 [204 No Content, 112 B, 9 ms]
+  Pass  HTTP 204
+  Pass  Delete response has no body
+
+Root 11 Confirm student is gone
+
+  GET http://127.0.0.1:18081/api/students/1 [404 Not Found, 278 B, 4 ms]
+  Pass  HTTP 404
+  Pass  Error identifies the deleted student
+
+Root 12 Empty course result
+
+  GET http://127.0.0.1:18081/api/students/course/course-with-no-students [200 OK, 157 B, 3 ms]
+  Pass  HTTP 200
+  Pass  A course without students returns an empty list

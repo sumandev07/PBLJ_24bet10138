@@ -1,0 +1,22 @@
+Campus Library feature checks
+PASS Sample catalog and loans
+PASS Sample overdue loan
+PASS Catalog search filters by author
+PASS Catalog search filters by title
+PASS Catalog search filters by book ID
+PASS Loan history filters overdue records
+PASS Loan history filters returned records
+PASS Add and find a book
+PASS Duplicate book ID
+PASS Invalid copy count
+PASS Invalid student ID
+PASS Unknown book ID
+PASS Issue reduces available copies
+PASS Duplicate active loan
+PASS Issue with no available copies
+PASS 14-day due date
+PASS Overdue starts the day after the due date
+PASS Return restores the copy and preserves the loan
+PASS Repeat return
+PASS Second writer blocked
+PASS Invalid data rejected and preserved
